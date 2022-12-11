@@ -1,11 +1,10 @@
 import os
-doc_list = []
-data_path_root = ('./data/')
-data_path = os.listdir(data_path_root)
+import jieba
 
 """
-    TF term frequency in one text
-
+    TF:term frequency in one text
+    IDF = N/df
+    df:the number of documents in which term t occurs
 
 """
 
@@ -35,10 +34,5 @@ class Text(object):
     """
     
     """
+    
     def __init__(self):
-        pass
-
-    reader = FileReader()
-
-    for i in reader.doc_generator():
-        print(i)
