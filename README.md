@@ -9,4 +9,4 @@ undecided
 2. generate vector for each doc
 3. generate vector for query
 4. compute cosine similary and sort
-.
+.......
