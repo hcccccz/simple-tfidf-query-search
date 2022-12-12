@@ -1,3 +1,6 @@
 import numpy as np
 
-print(type(np.arange(15).reshape(3,5)))
+m = np.arange(0,10).reshape(2,5)
+
+m = np.append(m,[0,0,0,0,0])
+print(m)

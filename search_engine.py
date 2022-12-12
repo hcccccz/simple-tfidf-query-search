@@ -24,16 +24,24 @@ class FileReader(object):
 
     def doc_generator(self):
         """
-        yield file content 
+        yield file content and file name
         """
         for file_path in self.file_list:
             with open(file_path,'r') as file:
-                yield file.read()
+                file_name = os.path.split(file_path)[1]
+                yield (file_name,file.read())
 
         
 class Text(object):
     """class represent text
-    
+       
+       Attributes:
+       tokenize: list contains words from sentence after removing stopwords
+       text: raw text read from file
+       word_count: dict records term frequency
+
+       Args:
+       text
     """
     
     def __init__(self,text):
@@ -53,8 +61,12 @@ class Text(object):
         """
         for word in self.tokenize:
             self.word_count[word] += 1
+    def remove_stopword(self,stopword):
+        """remove stop word from tokenize 
+           args: stopword stopword load from Textlib class
+        """
 
-
+        self.tokenize = [word for word in self.tokenize if word not in stopword and word != "\n" and word != "\u3000"]
     
 """
 vector space model
@@ -65,13 +77,19 @@ find data of the matrix by index
     
 
 
-class TextLib:
+class TextLib(object):
     """library for Text object
     """
-    pass
+
+    def __init__(self,):
+        pass
+    
 
 
 
+# with open("./stopword/stopwords.txt",'r') as file:
+#     stopwords = file.read()
+#     stopwords = stopwords.split("\n")
 
 
 
