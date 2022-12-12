@@ -56,7 +56,12 @@ class Text(object):
 
 
     
-
+"""
+vector space model
+row is docmument
+col is word
+find data of the matrix by index
+"""
     
 
 
