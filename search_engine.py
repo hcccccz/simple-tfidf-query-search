@@ -1,10 +1,11 @@
 import os
 import jieba
-
+from collections import defaultdict
 """
     TF:term frequency in one text
     IDF = N/df
     df:the number of documents in which term t occurs
+
 
 """
 
@@ -31,8 +32,49 @@ class FileReader(object):
 
         
 class Text(object):
-    """
+    """class represent text
     
     """
     
-    def __init__(self):
+    def __init__(self,text):
+        self.text = text
+        self.tokenize = []
+        self.word_count = defaultdict(int)
+        jieba.enable_parallel(4) # enable parallelism for tokenize
+
+    def text_tokenize(self):
+        """tokenize text saving to self.tokenize
+        """
+        for i in jieba.cut(self.text):
+            self.tokenize.append(i)
+
+    def count_word(self):
+        """count term frequency
+        """
+        for word in self.tokenize:
+            self.word_count[word] += 1
+
+
+    
+
+    
+
+
+class TextLib:
+    """library for Text object
+    """
+    pass
+
+
+
+
+
+
+# import time
+# jieba.enable_parallel(4)
+# t1 = time.time()
+# f = FileReader()
+# for i in f.doc_generator():
+#     list(jieba.cut(i))
+# t2 = time.time()
+# print(t2-t1)
