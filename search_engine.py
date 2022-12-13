@@ -3,6 +3,7 @@ import jieba
 from collections import defaultdict
 import scipy.sparse as sp
 from tqdm import tqdm
+import numpy as np
 jieba.enable_parallel(4)  # enable parallelism for tokenize
 """
     TF:term frequency in one text
@@ -130,15 +131,26 @@ class TextLib(object):
 
         num_text = len(self.text_lib)
         num_word = len(self.vocabulary.keys())
-        print(num_text)
-        print(num_word)
-        dt_matrix = sp.coo_matrix((num_text,num_word))
+        row = []
+        col = []
+        data = []
         for idx,text in tqdm(enumerate(self.text_lib)):
-            for word,word_idx in self.vocabulary.items():
-                if word in text.tokenize:
-                    dt_matrix[idx,word_idx] = text.word_count[word]
-                else:
-                    dt_matrix[idx,word_idx] = 0
+            for word in text.tokenize:
+                row_idx = idx
+                col_idx = self.vocabulary[word]
+                word_count = text.word_count[word]
+                row.append(row_idx)
+                col.append(col_idx)
+                data.append(word_count)
+        row = np.array(row)
+        col = np.array(col)
+        data = np.array(data)
+        tf_matrix = sp.coo_matrix((data,(row,col)),shape = (num_text,num_word))
+        print(tf_matrix.todense())
+                # if word in text.tokenize:
+                #     dt_matrix[idx,word_idx] = text.word_count[word]
+                # else:
+                #     dt_matrix[idx,word_idx] = 0
         
 lib = TextLib()
 print("loading stopwords")
