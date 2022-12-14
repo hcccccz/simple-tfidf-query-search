@@ -4,6 +4,9 @@ from collections import defaultdict
 import scipy.sparse as sp
 from tqdm import tqdm
 import numpy as np
+from numpy.linalg import norm
+import time
+
 jieba.enable_parallel(4)  # enable parallelism for tokenize
 """
     TF:term frequency in one text
@@ -101,7 +104,8 @@ class TextLib(object):
         self.text_lib = []
         self.stopwords = []
         self.vocabulary = {}
-
+        self.tf_idf_matrix = None
+        self.query_vector = None
     def load_data(self):
         """load doc data from reader
         """
@@ -138,7 +142,7 @@ class TextLib(object):
             for word in text.tokenize:
                 row_idx = idx
                 col_idx = self.vocabulary[word]
-                word_count = text.word_count[word]
+                word_count = np.log10(text.word_count[word]+1)
                 row.append(row_idx)
                 col.append(col_idx)
                 data.append(word_count)
@@ -146,7 +150,44 @@ class TextLib(object):
         col = np.array(col)
         data = np.array(data)
         tf_matrix = sp.coo_matrix((data,(row,col)),shape = (num_text,num_word))
-        print(tf_matrix.todense())
+        tf_matrix = tf_matrix.tocsc()
+        df  = np.diff(tf_matrix.indptr) #calculatethe number of documents in which term t occurs
+        idf = np.log10(num_text/df)
+        self.tf_idf_matrix = tf_matrix.multiply(idf).tocsr()
+
+    def cos_sim(self,array1,array2):
+        cos = np.dot(array1,array2)/(norm(array1)*norm(array2))
+        return cos
+
+    def query2vec(self,query):
+        num_word = len(self.vocabulary.keys())
+        query = Text(query)
+        query.text_tokenize()
+        query.remove_stopword(self.stopwords)
+        query.count_word()
+        row =[]
+        col = []      
+        data = []  
+        for word in query.tokenize:
+            row_idx = 0
+            col_idx = self.vocabulary[word]
+            word_count = query.word_count[word]
+            row.append(row_idx)
+            col.append(col_idx)
+            data.append(word_count)
+        query_vector = sp.coo_matrix((data,(row,col)),shape=(1,num_word))
+        self.query_vector = query_vector.tocsr().getrow(0).toarray()
+
+    def search(self):
+        query = self.query_vector[0]
+        for i in tqdm(range(0,self.tf_idf_matrix.shape[0])):
+            array = self.tf_idf_matrix.getrow(i).toarray()[0]
+            
+            self.cos_sim(query,array)
+
+            
+        
+
                 # if word in text.tokenize:
                 #     dt_matrix[idx,word_idx] = text.word_count[word]
                 # else:
@@ -161,8 +202,8 @@ print("building vocabulary")
 lib.build_vocabulary()
 print("building matrix")
 lib.init_td_matrix()
-
-
+lib.query2vec("我为长者")
+lib.search()
 
 # import time
 # jieba.enable_parallel(4)
