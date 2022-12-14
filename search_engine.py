@@ -56,7 +56,7 @@ class Text(object):
         self.tokenize = []
         self.text_name = ""
         self.word_count = defaultdict(int)
-       
+        self.text_id = None
 
     def text_tokenize(self):
         """tokenize text saving to self.tokenize
@@ -74,6 +74,8 @@ class Text(object):
         """
         self.text_name = name
 
+    def set_id(self,id):
+        self.text_id = id
     def remove_stopword(self,stopword):
         """remove stop word from tokenize 
            args: stopword stopword load from Textlib class
@@ -143,6 +145,7 @@ class TextLib(object):
                 row_idx = idx
                 col_idx = self.vocabulary[word]
                 word_count = np.log10(text.word_count[word]+1)
+                text.set_id = idx
                 row.append(row_idx)
                 col.append(col_idx)
                 data.append(word_count)
@@ -180,14 +183,15 @@ class TextLib(object):
 
     def search(self):
         query = self.query_vector[0]
+        cos_list = {}
         for i in tqdm(range(0,self.tf_idf_matrix.shape[0])):
             array = self.tf_idf_matrix.getrow(i).toarray()[0]
-            
-            self.cos_sim(query,array)
-
-            
-        
-
+            cos = self.cos_sim(query,array)
+            cos_list[i] = cos
+        cos_list_sort = sorted(cos_list.items(),key = lambda x:x[1],reverse=True)
+        for i in range(10):
+            id, sim = cos_list_sort[i]
+            print(self.text_lib[id].text_name)
                 # if word in text.tokenize:
                 #     dt_matrix[idx,word_idx] = text.word_count[word]
                 # else:
@@ -202,7 +206,7 @@ print("building vocabulary")
 lib.build_vocabulary()
 print("building matrix")
 lib.init_td_matrix()
-lib.query2vec("我为长者")
+lib.query2vec("国庆节")
 lib.search()
 
 # import time
